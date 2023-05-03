@@ -2,20 +2,10 @@ import sys # for getting CLI arguments
 EPS = 0.001
 ITER = 200
 
-def input_loader(filename:str) -> list[str]:
-    # load input file as list of strings
-    with open(filename, 'r') as f:
-        lines = f.readlines()
-    return lines
-
-def lines_to_points(lines:str) -> list[tuple[int]]:
-    '''turns lines into list of points'''
-    pass
-
 class Point:
     def __init__(self, *coord) -> None:
-        self.coord = coord
-        self.dimention = len(coord)
+        self.coord = list(coord)
+        self.dimention = len(self.coord)
 
     @staticmethod
     def distance(p1:"Point",p2:"Point") -> float:
@@ -35,12 +25,36 @@ class Cluster:
         pass
     
     def __repr__(self) -> str:
-        return self.center.coord[1:-1].replace(" ", "")
+        st = [f"{comp:.4f}" for comp in self.coord]
+        return ",".join(st)
+
+    def clear_members(self) -> None:
+        '''clears any members in the members list'''
+        self.members = []
 
 
-def kmins(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluster]:
+def input_loader(filename:str) -> list[str]:
+    # load input file as list of strings
+    try:
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+    except:
+        raise Exception("An Error Has Occurred")
+    return lines
+
+def lines_to_points(lines:str) -> list[Point]:
+    '''turns lines into list of points'''
+    return [
+        Point(
+                (float(num)for num in line.split(","))
+        ) 
+        for line in lines
+    ]
+    
+def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluster]:
     clusters = [Cluster(points[i]) for i in range(K)]
     for i in range(iter):
+        unchanged_clusters = 0
         for p in points:
             min_cluster = clusters[0]
             min_dist = Point.distance(p, min_cluster.center)
@@ -53,8 +67,13 @@ def kmins(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluster
             
             min_cluster.add(p)
             if (min_cluster.recalc_center() < eps):
-                return clusters
-            
+                unchanged_clusters += 1
+
+        if unchanged_clusters == K:
+            break
+        for cl in clusters: #reset clusters so there aren't points in multiple clusters
+            cl.clear_members()
+
     return clusters
         
 
@@ -68,10 +87,13 @@ def load_args(args):
     filename = ""
     assert str.isnumeric(args[0]), "Invalid number of clusters!"
     K = int(args[0])
+
     if args == None or len(args) < 2:
-        raise Exception("an error has oocured")
+        raise Exception("An Error Has Occurred")
+    
     elif len(args) == 2:
         filename = args[1]
+        
     else:
         assert str.isnumeric(args[1]), "Invalid maximum iteration!"
         max_iter = int(args[1])
@@ -83,15 +105,9 @@ def load_args(args):
 
 def main(args = sys.argv):
     K, max_iter, filename = load_args(args)
-
-    try:
-        points = lines_to_points(input_loader(filename))
-    except:
-        raise Exception("an error has oocured")
-    
+    points = lines_to_points(input_loader(filename))
     check_num_of_clusters(K,len(points))
-
-    clusters = kmins(points, K, max_iter)
+    clusters = kmeans(points, K, max_iter)
     print_clusters(clusters)
 
 
