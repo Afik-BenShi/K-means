@@ -28,9 +28,21 @@ class Cluster:
         self.members.append(p)
         return self.recalc_center()
     
-    def recalc_center()->float:
+    def recalc_center(self)->float:
         '''returns eclidean Distance, between the updated centroid to the previous one'''
-        pass
+        coords = [0] * len(self.members)
+        for i in range(len(self.members)):
+            sum = 0
+            for point in self.members:
+                sum += point.coord[i]
+            
+            coords[i] = sum / len(self.members)
+
+        new_center = Point(coords)
+        delta = abs(Point.distance(new_center, self.center))
+        self.center = new_center
+
+        return delta
     
     def __repr__(self) -> str:
         st = [f"{comp:.4f}" for comp in self.coord]
@@ -81,8 +93,7 @@ def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluste
         for cl in clusters: #reset clusters so there aren't points in multiple clusters
             cl.clear_members()
 
-    return clusters
-        
+    return clusters       
 
 
 def print_clusters(clusters:list[Cluster]) -> None:
