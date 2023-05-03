@@ -10,7 +10,14 @@ class Point:
     @staticmethod
     def distance(p1:"Point",p2:"Point") -> float:
         #verify dimentions
-        pass
+        if p1.dimention != p2.dimention:
+            raise Exception("An Error Has Occured")
+
+        sum = 0
+        for i in range(len(p1.dimention)):
+            sum += (p1.coord[i] - p2.coord[i])**2
+        
+        return sum**1/2
 
 class Cluster:
     def __init__(self, p) -> None:
@@ -18,7 +25,8 @@ class Cluster:
         self.members = [p]
     
     def add(self, p):
-        pass
+        self.members.append(p)
+        return self.recalc_center()
     
     def recalc_center()->float:
         '''returns eclidean Distance, between the updated centroid to the previous one'''
@@ -65,8 +73,7 @@ def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluste
                     min_dist = curr_dist
                     min_cluster = cl
             
-            min_cluster.add(p)
-            if (min_cluster.recalc_center() < eps):
+            if (min_cluster.add(p) < eps):
                 unchanged_clusters += 1
 
         if unchanged_clusters == K:
@@ -106,6 +113,12 @@ def load_args(args):
 def main(args = sys.argv):
     K, max_iter, filename = load_args(args)
     points = lines_to_points(input_loader(filename))
+
+    try:
+        points = lines_to_points(input_loader(filename))
+    except:
+        raise Exception("An Error Has Occured")
+    
     check_num_of_clusters(K,len(points))
     clusters = kmeans(points, K, max_iter)
     print_clusters(clusters)
