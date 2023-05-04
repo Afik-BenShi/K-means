@@ -3,8 +3,8 @@ EPS = 0.001
 ITER = 200
 
 class Point:
-    def __init__(self, *coord) -> None:
-        self.coord = list(coord)
+    def __init__(self, coord) -> None:
+        self.coord = tuple(coord)
         self.dimention = len(self.coord)
 
     @staticmethod
@@ -14,10 +14,10 @@ class Point:
             raise Exception("An Error Has Occured")
 
         sum = 0
-        for i in range(len(p1.dimention)):
+        for i in range(p1.dimention):
             sum += (p1.coord[i] - p2.coord[i])**2
         
-        return sum**1/2
+        return sum**0.5
 
 class Cluster:
     def __init__(self, p) -> None:
@@ -28,12 +28,25 @@ class Cluster:
         self.members.append(p)
         return self.recalc_center()
     
-    def recalc_center()->float:
+    def recalc_center(self)->float:
         '''returns eclidean Distance, between the updated centroid to the previous one'''
-        pass
+        coords = () * self.center.dimention
+        for i in range(self.center.dimention):
+            sum = 0
+            for point in self.members:
+                sum += point.coord[i]
+            
+            coords = coords + (sum / len(self.members), )
+
+        new_center = Point(coords)
+
+        delta = abs(Point.distance(new_center, self.center))
+        self.center = new_center
+
+        return delta
     
     def __repr__(self) -> str:
-        st = [f"{comp:.4f}" for comp in self.coord]
+        st = [f"{comp:.4f}" for comp in self.center.coord]
         return ",".join(st)
 
     def clear_members(self) -> None:
@@ -81,8 +94,7 @@ def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluste
         for cl in clusters: #reset clusters so there aren't points in multiple clusters
             cl.clear_members()
 
-    return clusters
-        
+    return clusters       
 
 
 def print_clusters(clusters:list[Cluster]) -> None:
@@ -92,19 +104,19 @@ def print_clusters(clusters:list[Cluster]) -> None:
 def load_args(args):
     max_iter = ITER
     filename = ""
-    assert str.isnumeric(args[0]), "Invalid number of clusters!"
-    K = int(args[0])
+    assert str.isnumeric(args[1]), "Invalid number of clusters!"
+    K = int(args[1])
 
-    if args == None or len(args) < 2:
+    if args == None or len(args) < 3:
         raise Exception("An Error Has Occurred")
     
-    elif len(args) == 2:
+    elif len(args) == 3:
         filename = args[1]
         
     else:
-        assert str.isnumeric(args[1]), "Invalid maximum iteration!"
-        max_iter = int(args[1])
-        filename = args[2]
+        assert str.isnumeric(args[2]), "Invalid maximum iteration!"
+        max_iter = int(args[2])
+        filename = args[3]
         check_num_of_iter(max_iter)
 
     return K, max_iter, filename
@@ -129,7 +141,7 @@ def check_num_of_clusters(num_of_clusters, num_of_datapoints):
         raise Exception("Invalid number of clusters!")
 
 def check_num_of_iter(num_of_iter):
-    if 1 <= num_of_iter or num_of_iter >= 1000:
+    if num_of_iter <= 1 or num_of_iter >= 1000:
         raise Exception("Invalid maximum iteration!")    
     return iter
 
