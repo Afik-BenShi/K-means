@@ -22,21 +22,20 @@ class Point:
 class Cluster:
     def __init__(self, p) -> None:
         self.center:Point = p
-        self.members = [p]
+        self.members:list[Point] = []
     
-    def add(self, p):
+    def add(self, p:Point)->None:
         self.members.append(p)
-        return self.recalc_center()
     
     def recalc_center(self)->float:
         '''returns eclidean Distance, between the updated centroid to the previous one'''
-        coords = () * self.center.dimention
+        coords = [None for i in range(self.center.dimention)]
         for i in range(self.center.dimention):
             sum = 0
             for point in self.members:
                 sum += point.coord[i]
-            
-            coords = coords + (sum / len(self.members), )
+
+            coords[i] = sum / len(self.members)
 
         new_center = Point(coords)
 
@@ -75,8 +74,7 @@ def lines_to_points(lines:str) -> list[Point]:
 def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluster]:
     clusters = [Cluster(points[i]) for i in range(K)]
     for i in range(iter):
-        unchanged_clusters = 0
-        for p in points:
+        for p in points: # step 2
             min_cluster = clusters[0]
             min_dist = Point.distance(p, min_cluster.center)
             
@@ -86,14 +84,14 @@ def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluste
                     min_dist = curr_dist
                     min_cluster = cl
             
-            if (min_cluster.add(p) < eps):
-                unchanged_clusters += 1
+            min_cluster.add(p) 
 
+        unchanged_clusters = 0
+        for cl in clusters: # step 3
+            unchanged_clusters += 1 if cl.recalc_center() < eps else 0
+            cl.clear_members()
         if unchanged_clusters == K:
             break
-        for cl in clusters: #reset clusters so there aren't points in multiple clusters
-            cl.clear_members()
-
     return clusters       
 
 
@@ -111,7 +109,7 @@ def load_args(args):
         raise Exception("An Error Has Occurred")
     
     elif len(args) == 3:
-        filename = args[1]
+        filename = args[2]
         
     else:
         assert str.isnumeric(args[2]), "Invalid maximum iteration!"
@@ -124,17 +122,12 @@ def load_args(args):
 
 def main(args = sys.argv):
     K, max_iter, filename = load_args(args)
+
     points = lines_to_points(input_loader(filename))
 
-    try:
-        points = lines_to_points(input_loader(filename))
-    except:
-        raise Exception("An Error Has Occured")
-    
     check_num_of_clusters(K,len(points))
     clusters = kmeans(points, K, max_iter)
     print_clusters(clusters)
-
 
 def check_num_of_clusters(num_of_clusters, num_of_datapoints):
     if num_of_clusters <= 1 or num_of_clusters >= num_of_datapoints:
