@@ -3,12 +3,12 @@ EPS = 0.001
 ITER = 200
 
 class Point:
-    def __init__(self, coord) -> None:
+    def __init__(self, coord):
         self.coord = tuple(coord)
         self.dimention = len(self.coord)
 
     @staticmethod
-    def distance(p1:"Point",p2:"Point") -> float:
+    def distance(p1, p2):
         #verify dimentions
         if p1.dimention != p2.dimention:
             raise Exception("An Error Has Occured")
@@ -20,14 +20,14 @@ class Point:
         return sum**0.5
 
 class Cluster:
-    def __init__(self, p) -> None:
-        self.center:Point = p
-        self.members:list[Point] = []
+    def __init__(self, p):
+        self.center = p
+        self.members = []
     
-    def add(self, p:Point)->None:
+    def add(self, p):
         self.members.append(p)
     
-    def recalc_center(self)->float:
+    def recalc_center(self):
         '''returns eclidean Distance, between the updated centroid to the previous one'''
         coords = [None for i in range(self.center.dimention)]
         for i in range(self.center.dimention):
@@ -44,16 +44,16 @@ class Cluster:
 
         return delta
     
-    def __repr__(self) -> str:
+    def __repr__(self):
         st = [f"{comp:.4f}" for comp in self.center.coord]
         return ",".join(st)
 
-    def clear_members(self) -> None:
+    def clear_members(self):
         '''clears any members in the members list'''
         self.members = []
 
 
-def input_loader(filename:str) -> list[str]:
+def input_loader(filename):
     # load input file as list of strings
     try:
         with open(filename, 'r') as f:
@@ -62,7 +62,7 @@ def input_loader(filename:str) -> list[str]:
         raise Exception("An Error Has Occurred")
     return lines
 
-def lines_to_points(lines:str) -> list[Point]:
+def lines_to_points(lines):
     '''turns lines into list of points'''
     return [
         Point(
@@ -71,7 +71,7 @@ def lines_to_points(lines:str) -> list[Point]:
         for line in lines
     ]
     
-def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluster]:
+def kmeans(points, K, iter=ITER, eps=EPS):
     clusters = [Cluster(points[i]) for i in range(K)]
     for i in range(iter):
         for p in points: # step 2
@@ -95,7 +95,7 @@ def kmeans(points:list[Point], K:int, iter:int=ITER, eps:int=EPS) -> list[Cluste
     return clusters       
 
 
-def print_clusters(clusters:list[Cluster]) -> None:
+def print_clusters(clusters):
     for cl in clusters:
         print(cl)
 
