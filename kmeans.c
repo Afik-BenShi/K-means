@@ -94,12 +94,12 @@ char* read_file(FILE *file){
         return 0;
     }
 
-    fseek(file, OL, SEEK_END); // go to end of file
+    fseek(file, 0L, SEEK_END); // go to end of file
     size = ftell(file);   // save the size
-    fseek(file, OL, SEEK_SET); // go to start of file
+    fseek(file, 0L, SEEK_SET); // go to start of file
 
     // allocate memory
-    buffer = (char*)malloc(size+1)
+    buffer = (char*)malloc(size+1);
     if (*buffer == NULL){
         printf(*GENERAL_ERROR);
         return 0;
@@ -115,7 +115,7 @@ char* read_file(FILE *file){
 // take the string and split it to lines array
 char** split_to_lines(char *st, int line_cnt){
     char **lines_arr;
-    lines_arr = calloc(lines_cnt, sizeof(char *));
+    lines_arr = calloc(line_cnt, sizeof(char *));
     
     lines_arr[0] = &st[0]; // set to first line
     for (int i = 0, j = 1; st[i] != '\0'; i++){
