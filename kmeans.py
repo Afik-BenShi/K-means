@@ -11,7 +11,8 @@ class Point:
     def distance(p1, p2):
         #verify dimensions
         if p1.dimension != p2.dimension:
-            raise Exception("An Error Has Occured")
+            print("An Error Has Occured")
+            sys.exit()
 
         sum = 0
         for i in range(p1.dimension):
@@ -59,7 +60,8 @@ def input_loader(filename):
         with open(filename, 'r') as f:
             lines = f.readlines()
     except:
-        raise Exception("An Error Has Occurred")
+        print("An Error Has Occurred")
+        sys.exit()
     return lines
 
 def lines_to_points(lines):
@@ -102,17 +104,21 @@ def print_clusters(clusters):
 def load_args(args):
     max_iter = ITER
     filename = ""
-    assert str.isnumeric(args[1]), "Invalid number of clusters!"
+    if not str.isnumeric(args[1]):
+        print("Invalid number of clusters!")
+        sys.exit()
     K = int(args[1])
 
     if args == None or len(args) < 3:
-        raise Exception("An Error Has Occurred")
-    
+        print("An Error Has Occurred")
+        sys.exit()
     elif len(args) == 3:
         filename = args[2]
         
     else:
-        assert str.isnumeric(args[2]), "Invalid maximum iteration!"
+        if not str.isnumeric(args[2]):
+            print("Invalid maximum iteration!")
+            sys.exit()
         max_iter = int(args[2])
         filename = args[3]
         check_num_of_iter(max_iter)
@@ -131,11 +137,13 @@ def main(args = sys.argv):
 
 def check_num_of_clusters(num_of_clusters, num_of_datapoints):
     if num_of_clusters <= 1 or num_of_clusters >= num_of_datapoints:
-        raise Exception("Invalid number of clusters!")
+        print("Invalid number of clusters!")
+        sys.exit()
 
 def check_num_of_iter(num_of_iter):
     if num_of_iter <= 1 or num_of_iter >= 1000:
-        raise Exception("Invalid maximum iteration!")    
+        print("Invalid maximum iteration!")  
+        sys.exit()  
     return iter
 
 if __name__=="__main__":
