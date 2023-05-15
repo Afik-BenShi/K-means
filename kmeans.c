@@ -16,14 +16,17 @@ void free_2d(void** mat, int rows){
     for (i = 0; i < rows; i++){
         free(mat[i]);
     }
+
     free(mat);
 }
-/* Checks that an allocated pointer actually has somwere to point to */
+
+/* Checks that an allocated pointer actually has somewhere to point to */
 void pointer_check(void* ptr, const char* error_msg){
     if (ptr == NULL) {
         printf("%s", error_msg);
         exit(-1);
     }
+
     return;
 }
 
@@ -43,6 +46,7 @@ double** empty_points_arr(int len){
             arr[i][j] = 0.0;
         }
     }
+
     return arr;
 }
 
@@ -61,6 +65,7 @@ double** point_array_copy(double** points, int k){
             new_points[i][j] = points[i][j];
         }
     }
+
     return new_points;
 }
 
@@ -80,6 +85,7 @@ int get_dimention(char *st){
      * this distinguishes if line has a number or is empty */
     dim_ += (st[0] <= '9' && st[0] >='0') || st[0] == '-'; 
     dim = dim_;
+
     return dim_;
 }
 
@@ -95,6 +101,7 @@ int count_lines(char *st){
     }
     
     line_num = line_cnt;
+
     return line_cnt;
 }
 
@@ -131,6 +138,7 @@ char* read_file(){
 char** split_to_lines(char *st, int lines_count){
     char **lines_arr;
     int i, j;
+
     lines_arr = (char **) malloc(lines_count * sizeof(char *));
     pointer_check((void *)lines_arr, GENERAL_ERROR);
 
@@ -142,6 +150,7 @@ char** split_to_lines(char *st, int lines_count){
             j++;
         }
     }
+
     return lines_arr;
 }
 
@@ -152,6 +161,7 @@ double* read_point(char *line, int dimention) {
     int i;
     double* point = (double *)malloc(dim * sizeof(double));
     pointer_check((void *)point, GENERAL_ERROR);
+
     for (i = 0; i < dimention; i++){
         int char_cnt;
         double number;
@@ -171,6 +181,7 @@ double* read_point(char *line, int dimention) {
         }
         point[i] = number;
     }
+
     return point;
 }
 
@@ -188,6 +199,7 @@ double** lines_to_points(char** lines, int line_num, int dim){
         char *line = lines[i];
         points[i] = read_point(line, dim);
     }
+
     return points;
 }
 
@@ -199,6 +211,7 @@ double distance(double* p, double* q, int dim){
     for (i = 0; i < dim; i++){
         dist += pow((p[i]-q[i]), 2);
     }
+
     return sqrt(dist);
 }
 
@@ -215,6 +228,7 @@ double** kmeans(double** points, int k, int iter, double eps){
                 /* mem_cnt counts the number of points assigned to a center */
         int *mem_cnt = (int *)calloc(k, sizeof(int));
         int converg_cnt = 0;
+
                 /* foreach point*/
         for (j = 0; j < line_num; j++){
             int center_idx = 0;
@@ -230,6 +244,7 @@ double** kmeans(double** points, int k, int iter, double eps){
             members[j] = center_idx;  /* point j is member of center_idx*/
             mem_cnt[center_idx] += 1; /* count member*/
         }
+
         /*step 4*/
         for (j = 0; j < line_num; j++){
             /* foreach point find its assigned index */
@@ -239,6 +254,7 @@ double** kmeans(double** points, int k, int iter, double eps){
                 new_cents[center_idx][l] += points[j][l]/mem_cnt[center_idx];
             }
         }
+
         /*step 5*/
         for (j = 0; j < k; j++){
             /* count unchanged distances */
@@ -248,10 +264,12 @@ double** kmeans(double** points, int k, int iter, double eps){
             /* also, we won't need the old centers anymore */
             free(centroids[j]);
         }
+
         /* free all helping memory */
         free(centroids);
         free(members);
         free(mem_cnt);
+
         /* save new centers */
         centroids = new_cents;
         if (converg_cnt == k){
@@ -259,6 +277,7 @@ double** kmeans(double** points, int k, int iter, double eps){
             break;
         }
     }
+
     return centroids;
 }
 
@@ -269,6 +288,7 @@ void check_num_of_clusters(int num_of_clusters, int num_of_datapoints) {
         exit(-1);
     }
 }
+
 /*  Checks that maximal number of iteration is within [1,1000] */
 void check_num_of_iter(int num_of_iter){
     if (num_of_iter <= 1 || num_of_iter >= 1000) {
@@ -276,6 +296,7 @@ void check_num_of_iter(int num_of_iter){
         exit(-1);
     }
 }
+
 int parse_k(int argc, char *argv[]){
     int k;
     /* parse and assert imput */
@@ -284,6 +305,7 @@ int parse_k(int argc, char *argv[]){
         return -1;
     }
     k = atoi(argv[1]);
+
     return k;
 }
 
@@ -292,6 +314,7 @@ int parse_iter(int argc, char *argv[]){
     if (argc >= 3){
         iter = atoi(argv[2]);
     }
+
     return iter;
 }
 
@@ -300,6 +323,7 @@ int main(int argc, char *argv[]){
     int k = parse_k(argc, argv);
     int iter = parse_iter(argc, argv);
     double eps = EPS;
+
     char *text = read_file();
     int dim_ = get_dimention(text);
     int line_num_ = count_lines(text);
@@ -310,10 +334,12 @@ int main(int argc, char *argv[]){
     /* free text variable*/
     free(text);
     free(lines);
+
     /* check validity of k and iter */
     check_num_of_clusters(k, line_num);
     check_num_of_iter(iter);
     centroids = kmeans(points, k, iter, eps);
+
     for (i = 0; i < k; i++)
     {
         for (j = 0; j < dim-1; j++)
@@ -322,8 +348,10 @@ int main(int argc, char *argv[]){
         }
         printf("%.4f\n",centroids[i][dim-1]);
     }
+
     free_2d((void **)centroids, k);
     free_2d((void **)points, line_num);
+
     return 200;
 }
 

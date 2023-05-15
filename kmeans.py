@@ -5,16 +5,16 @@ ITER = 200
 class Point:
     def __init__(self, coord):
         self.coord = tuple(coord)
-        self.dimention = len(self.coord)
+        self.dimension = len(self.coord)
 
     @staticmethod
     def distance(p1, p2):
-        #verify dimentions
-        if p1.dimention != p2.dimention:
+        #verify dimensions
+        if p1.dimension != p2.dimension:
             raise Exception("An Error Has Occured")
 
         sum = 0
-        for i in range(p1.dimention):
+        for i in range(p1.dimension):
             sum += (p1.coord[i] - p2.coord[i])**2
         
         return sum**0.5
@@ -29,8 +29,8 @@ class Cluster:
     
     def recalc_center(self):
         '''returns eclidean Distance, between the updated centroid to the previous one'''
-        coords = [None for i in range(self.center.dimention)]
-        for i in range(self.center.dimention):
+        coords = [None for i in range(self.center.dimension)]
+        for i in range(self.center.dimension):
             sum = 0
             for point in self.members:
                 sum += point.coord[i]
