@@ -21,7 +21,7 @@ void free_2d(void** mat, int rows){
 /* Checks that an allocated pointer actually has somwere to point to */
 void pointer_check(void* ptr, const char* error_msg){
     if (ptr == NULL) {
-        printf(error_msg);
+        printf("%s", error_msg);
         exit(-1);
     }
     return;
@@ -162,7 +162,7 @@ double* read_point(char *line, int dimention) {
             if (curr == ',' || curr == '\0'){
                 line[char_cnt] = '\0';       /* mark end of number */
                 number = strtod(line, NULL); /* convert */
-                line[char_cnt] = curr;        /* revert changes */
+                line[char_cnt] = curr;       /* revert changes */
                 break;
             }
         }
@@ -280,7 +280,7 @@ int parse_k(int argc, char *argv[]){
     int k;
     /* parse and assert imput */
     if (argc < 2){
-        printf(GENERAL_ERROR);
+        printf("%s", GENERAL_ERROR);
         return -1;
     }
     k = atoi(argv[1]);
@@ -309,6 +309,7 @@ int main(int argc, char *argv[]){
     
     /* free text variable*/
     free(text);
+    free(lines);
     /* check validity of k and iter */
     check_num_of_clusters(k, line_num);
     check_num_of_iter(iter);
