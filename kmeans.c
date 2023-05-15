@@ -24,7 +24,7 @@ void free_2d(void** mat, int rows){
 void pointer_check(void* ptr, const char* error_msg){
     if (ptr == NULL) {
         printf("%s", error_msg);
-        exit(-1);
+        exit(1);
     }
 
     return;
@@ -285,7 +285,7 @@ double** kmeans(double** points, int k, int iter, double eps){
 void check_num_of_clusters(int num_of_clusters, int num_of_datapoints) {
     if (num_of_clusters <= 1 || num_of_clusters >= num_of_datapoints) {
         printf("Error: Invalid number of clusters!\n");
-        exit(-1);
+        exit(1);
     }
 }
 
@@ -293,7 +293,7 @@ void check_num_of_clusters(int num_of_clusters, int num_of_datapoints) {
 void check_num_of_iter(int num_of_iter){
     if (num_of_iter <= 1 || num_of_iter >= 1000) {
         printf("Error: Invalid maximum iteration!\n");
-        exit(-1);
+        exit(1);
     }
 }
 
@@ -352,7 +352,7 @@ int main(int argc, char *argv[]){
     free_2d((void **)centroids, k);
     free_2d((void **)points, line_num);
 
-    return 200;
+    return 0;
 }
 
 
