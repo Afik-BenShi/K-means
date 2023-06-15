@@ -105,30 +105,36 @@ def is_float(string):
         return False
 
 def load_args(args):
-    max_iter = ITER
-    filename1 = ""
-    filename2 = ""
-
-    if args == None or len(args) < 5:
+    # assert num of args
+    if args == None or len(args) < 4:
         print("An Error Has Occurred")
         sys.exit()
 
+    # assert num of clusters
     if not str.isnumeric(args[1]):
         print("Invalid number of clusters!")
         sys.exit()
+    K = int(args[1])
 
-    if not str.isnumeric(args[2]):
-        print("Invalid maximum iteration!")
-        sys.exit()
+    # assign max_iter if given
+    max_iter = ITER
+    if len(args) > 5:
+        if not str.isnumeric(args[2]):
+            print("Invalid maximum iteration!")
+            sys.exit()
+        max_iter = int(args[2])
 
-    if not is_float(args[3]):
+    # assert eps which is always 3rd from the end
+    if not is_float(args[-3]):
         print("An Error Has Occurred")
         sys.exit()
+    eps = float(args[-3])
+    # assign filenames
+    filename1, filename2 = args[-2], args[-1]
 
-    K = int(args[1])
-    max_iter = int(args[2])
-    eps = float(args[3])
-    filename1, filename2 = args[4], args[5]
+    check_num_of_iter(max_iter)
+    check_input_file(filename1)
+    check_input_file(filename2)
 
     return K, max_iter, eps, filename1, filename2
 
@@ -141,7 +147,6 @@ def check_num_of_iter(num_of_iter):
     if num_of_iter <= 1 or num_of_iter >= 1000:
         print("Invalid maximum iteration!")  
         sys.exit()  
-    return iter
 
 def check_input_file(filename):
     name, ext = os.path.splitext(filename)
@@ -151,13 +156,12 @@ def check_input_file(filename):
 
 def main(args = sys.argv):
     K, max_iter, eps, filename1, filename2 = load_args(args)
-    check_input_file(filename1)
-    check_input_file(filename2)
-    check_num_of_iter(max_iter)
+    # input files and num of iter checks were inserted to load_args()
 
     process_files(filename1, filename2)
 
     points = lines_to_points(input_loader("files_process_output.txt"))
+    check_num_of_clusters(K,len(points))
     points_coords = [point.coord for point in points]
     centers = kmeans_pp(points, K)
     centers_coords = [center.coord for center in centers]
