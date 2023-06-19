@@ -167,7 +167,5 @@ def main(args = sys.argv):
     centers_coords = [center.coord for center in centers]
     result = mykmeanssp.fit(centers_coords, points_coords, K, max_iter, eps)
 
-    print(result)
-
 if __name__=="__main__":
     main()
