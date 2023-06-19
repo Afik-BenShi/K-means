@@ -106,7 +106,7 @@ def is_float(string):
 
 def load_args(args):
     # assert num of args
-    if args == None or len(args) < 4:
+    if args == None or len(args) < 6:
         print("An Error Has Occurred")
         sys.exit()
 
@@ -151,7 +151,7 @@ def check_num_of_iter(num_of_iter):
 def check_input_file(filename):
     name, ext = os.path.splitext(filename)
     if not ext.lower() in ['.txt', '.csv']:
-        print("Invalid type of file")  
+        print("An Error Has Occurred")  
         sys.exit() 
 
 def main(args = sys.argv):
