@@ -8,8 +8,8 @@
 const double EPS = 0.001;
 const int ITER = 200;
 const char* GENERAL_ERROR = "An Error Has Occurred\n";
-int dim = 0;
-int line_num = 0;
+Py_ssize_t dim = 0;
+Py_ssize_t line_num = 0;
 
 /* ============ Array Tools ============ */
 
@@ -17,6 +17,16 @@ int line_num = 0;
 void free_2d(void** mat, int rows){
     int i;
     for (i = 0; i < rows; i++){
+        free(mat[i]);
+    }
+
+    free(mat);
+}
+
+void Py_free_2d(void **mat, Py_ssize_t rows){
+    int i;
+    for (i = 0; i < rows; i++)
+    {
         free(mat[i]);
     }
 
@@ -75,7 +85,7 @@ double** point_array_copy(double** points, int k){
 
 /* Euclidian distance between p and q.
  * Formula d=sqrt(pow(p[0]-q[0], 2) + ... + pow(p[n]-q[n], 2)) */
-double distance(double* p, double* q, int dim){
+double distance(double* p, double* q){
     int i;
     double dist = 0.0;
     for (i = 0; i < dim; i++){
@@ -104,7 +114,7 @@ double** kmeans(double** centroids,double** points, int k, int iter, double eps)
             double min_dist = -1;
             /* find closest cluster*/
             for (l = 0; l < k; l++){
-                double dist = distance(points[j], centroids[l], dim);
+                double dist = distance(points[j], centroids[l]);
                 if ((min_dist == -1)||(min_dist > dist)){
                     center_idx = l;
                     min_dist = dist;
@@ -127,7 +137,7 @@ double** kmeans(double** centroids,double** points, int k, int iter, double eps)
         /*step 5*/
         for (j = 0; j < k; j++){
             /* count unchanged distances */
-            if (distance(new_cents[j], centroids[j], dim) < eps){
+            if (distance(new_cents[j], centroids[j]) < eps){
                 converg_cnt++;
             }
             /* also, we won't need the old centers anymore */
@@ -161,8 +171,6 @@ double** fit(double** centroids, double** points, int k, int iter, double eps) {
         }
         printf("%.4f\n",centroids[i][dim-1]);
     }
-
-    free_2d((void **)centroids, k);
 
     return centroids;
 }
@@ -232,9 +240,9 @@ static PyObject* fit_wrapper(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    /* Assign dimention and number of lines global variables */
-    line_num = PyInt_AsInt(PyList_Size(points_obj));
-    dim = line_num > 0? PyInt_AsInt(PyList_Size(PyList_GetItem(points_obj, 0))) : 0;
+    /* Assign dimension and number of lines global variables */
+    line_num = PyList_Size(points_obj);
+    dim = line_num > 0? PyList_Size(PyList_GetItem(points_obj, 0)) : 0;
 
     /* Convert Python objects to double arrays */
     double** centroids = convert_to_double_array(centroids_obj);
@@ -247,27 +255,19 @@ static PyObject* fit_wrapper(PyObject *self, PyObject *args) {
     PyObject* result_obj = convert_to_python_object(result, k, dim);
 
     /* Free the allocated memory */
-    free_2d((void**)centroids, k);
-    free_2d((void**)points, line_num);
+    Py_free_2d((void**)points, line_num);
     free_2d((void**)result, k);
 
     return result_obj;
 }
 
 static PyMethodDef kmeansMethods[] = {
-    /* {"kmeans", (PyCFunction) kmeans, METH_VARARGS, PyDoc_STR("Implementation of k-means clustering algorithem")}, */
     {
         "fit",
         fit_wrapper,
         METH_VARARGS, 
         PyDoc_STR("Implementation of k-means clustering algorithm")
     },
-    /* 
-     * {"point_array_copy", (PyFunction) point_array_copy, METH_VARARGS, PyDoc_STR("helper function for k-means clustering algorithem")},
-     * {"empty_points_arr", (PyFunction) empty_points_arr, METH_VARARGS, PyDoc_STR("helper function for k-means clustering algorithem")},
-     * {"distance", (PyFunction) distance, METH_VARARGS, PyDoc_STR("helper function for k-means clustering algorithem")},
-     * {"pointer_check", (PyFunction) pointer_check, METH_VARARGS, PyDoc_STR("helper function for k-means clustering algorithem")},
-     */
     {NULL, NULL, 0, NULL} 
 };
 
