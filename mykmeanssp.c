@@ -23,6 +23,16 @@ void free_2d(void** mat, int rows){
     free(mat);
 }
 
+void Py_free_2d(void **mat, Py_ssize_t rows){
+    int i;
+    for (i = 0; i < rows; i++)
+    {
+        free(mat[i]);
+    }
+
+    free(mat);
+}
+
 /* Checks that an allocated pointer actually has somewhere to point to */
 void pointer_check(void* ptr, const char* error_msg){
     if (ptr == NULL) {
@@ -75,7 +85,7 @@ double** point_array_copy(double** points, int k){
 
 /* Euclidian distance between p and q.
  * Formula d=sqrt(pow(p[0]-q[0], 2) + ... + pow(p[n]-q[n], 2)) */
-double distance(double* p, double* q, int dim){
+double distance(double* p, double* q){
     int i;
     double dist = 0.0;
     for (i = 0; i < dim; i++){
@@ -104,7 +114,7 @@ double** kmeans(double** centroids,double** points, int k, int iter, double eps)
             double min_dist = -1;
             /* find closest cluster*/
             for (l = 0; l < k; l++){
-                double dist = distance(points[j], centroids[l], dim);
+                double dist = distance(points[j], centroids[l]);
                 if ((min_dist == -1)||(min_dist > dist)){
                     center_idx = l;
                     min_dist = dist;
@@ -127,7 +137,7 @@ double** kmeans(double** centroids,double** points, int k, int iter, double eps)
         /*step 5*/
         for (j = 0; j < k; j++){
             /* count unchanged distances */
-            if (distance(new_cents[j], centroids[j], dim) < eps){
+            if (distance(new_cents[j], centroids[j]) < eps){
                 converg_cnt++;
             }
             /* also, we won't need the old centers anymore */
@@ -244,7 +254,7 @@ static PyObject* fit_wrapper(PyObject *self, PyObject *args) {
     PyObject* result_obj = convert_to_python_object(result, k, dim);
 
     /* Free the allocated memory */
-    free_2d((void**)points, line_num);
+    Py_free_2d((void**)points, line_num);
     free_2d((void**)result, k);
 
     return result_obj;

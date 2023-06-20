@@ -9,7 +9,7 @@ ITER = 300
 
 class Point:
     def __init__(self, coord, index):
-        self.coord = coord
+        self.coord = list(coord)
         self.index = index
         self.dimension = len(self.coord)
 
@@ -58,12 +58,13 @@ def lines_to_points(lines):
     ]   
 
 def process_files(filename1, filename2): 
-    df1 = pd.read_csv(filename1, header=None)
-    df2 = pd.read_csv(filename2, header=None)
+    df1 = pd.read_csv(filename1, header=None, index_col=0)
+    df2 = pd.read_csv(filename2, header=None, index_col=0)
 
-    result = pd.merge(df1, df2, left_on=df1.columns[0], right_on=df2.columns[0], how='inner')
-    result = result.sort_values(by=result.columns[0])
-    result.to_csv('files_process_output.txt', index=False, header=False)
+    result = pd.merge(df1,df2,left_on=df1.index, right_on=df2.index, how='inner')
+    result = result.set_index(result.columns[0])
+    result = result.sort_index()
+    return result
 
 def choose_random_point(points): 
     np.random.seed(0)
@@ -106,7 +107,7 @@ def is_float(string):
 
 def load_args(args):
     # assert num of args
-    if args == None or len(args) < 6:
+    if args == None or len(args) < 5:
         print("An Error Has Occurred")
         sys.exit()
 
@@ -153,14 +154,12 @@ def check_input_file(filename):
     if not ext.lower() in ['.txt', '.csv']:
         print("An Error Has Occurred")  
         sys.exit() 
-
+        
 def main(args = sys.argv):
     K, max_iter, eps, filename1, filename2 = load_args(args)
-    # input files and num of iter checks were inserted to load_args()
 
-    process_files(filename1, filename2)
-
-    points = lines_to_points(input_loader("files_process_output.txt"))
+    merged_df = process_files(filename1, filename2)
+    points = [Point(coord, idx) for idx, coord in zip(merged_df.index, merged_df.to_numpy())]
     check_num_of_clusters(K,len(points))
     points_coords = [point.coord for point in points]
     centers = kmeans_pp(points, K)
