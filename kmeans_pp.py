@@ -58,10 +58,10 @@ def lines_to_points(lines):
     ]   
 
 def process_files(filename1, filename2): 
-    df1 = pd.read_csv(filename1, header=None, index_col=0)
-    df2 = pd.read_csv(filename2, header=None, index_col=0)
+    df1 = pd.read_csv(filename1, header=None)
+    df2 = pd.read_csv(filename2, header=None)
 
-    result = pd.merge(df1,df2,left_on=df1.index, right_on=df2.index, how='inner')
+    result = pd.merge(df1,df2,left_on=df1.columns[0], right_on=df2.columns[0], how='inner')
     result = result.set_index(result.columns[0])
     result = result.sort_index()
     return result
@@ -159,7 +159,7 @@ def main(args = sys.argv):
     K, max_iter, eps, filename1, filename2 = load_args(args)
 
     merged_df = process_files(filename1, filename2)
-    points = [Point(coord, idx) for idx, coord in zip(merged_df.index, merged_df.to_numpy())]
+    points = [Point(coord, idx) for idx, coord in zip(merged_df.index, merged_df.values)]
     check_num_of_clusters(K,len(points))
     points_coords = [point.coord for point in points]
     centers = kmeans_pp(points, K)

@@ -145,6 +145,7 @@ double** kmeans(double** centroids,double** points, int k, int iter, double eps)
         }
 
         /* free all helping memory */
+        free(centroids);
         free(members);
         free(mem_cnt);
 
